@@ -26,9 +26,9 @@ async function bootstrap() {
 
   // La ruta en que se sirve la documentación
   SwaggerModule.setup('/api/docs', app, document);
-
-  await app.listen(process.env.NEST_PORT);
+  const port = process.env.PORT || 3000
+  await app.listen(port, "0.0.0.0");
   //  console.log(process.env.MONGO_URI)
-  logger.log(colors.white.bold(`Api Corriendo en el puerto: ${process.env.NEST_PORT} :: http://localhost:${process.env.NEST_PORT}/api`))
+  logger.log(colors.white.bold(`Api Corriendo en el puerto: ${process.env.PORT} :: ${process.env.HOST_API}`))
 }
 bootstrap();
