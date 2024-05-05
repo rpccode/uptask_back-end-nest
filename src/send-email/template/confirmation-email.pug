@@ -18,6 +18,9 @@ html
       h1 {
         color: #333333;
       }
+      span {
+        color: #8816ab
+      }
       p {
         margin-bottom: 10px;
         color: #555555;
@@ -31,7 +34,10 @@ html
       }
   body
     .container
-      h1 Hola #{name}, has creado tu cuenta en UpTask, ya casi está todo listo, solo debes confirmar tu cuenta.
+      h1 Hola #{name}
+      h3 has creado tu cuenta en 
+          span UpTask.
+      h3 ya casi está todo listo, solo debes confirmar tu cuenta.
       p Visita el siguiente enlace:
       p
         a(href=`${frontendUrl}/auth/confirm-account`) Confirmar cuenta

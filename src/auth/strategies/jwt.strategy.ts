@@ -8,14 +8,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy( Strategy ) {
+export class JwtStrategy extends PassportStrategy(Strategy) {
 
     constructor(
         @InjectModel(User.name) private readonly UserModel: Model<User>,
 
         configService: ConfigService
     ) {
-        
+
         super({
             secretOrKey: configService.get('JWT_SECRET'),
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -23,19 +23,19 @@ export class JwtStrategy extends PassportStrategy( Strategy ) {
     }
 
 
-    async validate( payload: JwtPayload ): Promise<User> {
-        
-        const { id } = payload;
+    async validate(payload: JwtPayload): Promise<User> {
 
-        const user = await this.UserModel.findOne({ id });
-console.log(user)
-        if ( !user ) 
+        const { id } = payload;
+        // console.log(id)
+        const user = await this.UserModel.findById(id);
+        // console.log(user)
+        if (!user)
             throw new UnauthorizedException('Token no Valido')
-            
-        if ( !user.IsActive ) 
+
+        if (!user.IsActive)
             throw new UnauthorizedException('El usuario esta inactivo, Comuniquece con el administrador');
-        
-        if ( !user.IsConfirmed ) 
+
+        if (!user.IsConfirmed)
             throw new UnauthorizedException('El usuario no esta confirmado, Comuniquece con el administrador');
 
         return user;

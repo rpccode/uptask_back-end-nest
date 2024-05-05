@@ -22,6 +22,29 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
     UserModule,
     AuthModule,
     SendEmailModule,
+    MailerModule.forRoot({
+      transport: {
+        host: process.env.MAIL_HOST,
+        port: +process.env.MAIL_PORT,
+        ignoreTLS: true,
+        secure: false,
+        auth: {
+          user: process.env.MAIL_USER,
+          pass: process.env.MAIL_PASS,
+        },
+      },
+      defaults: {
+        from: '"Uptask" <UptaskAdmin@gmail.com>',
+      },
+  
+      template: {
+        dir: process.cwd() + '/template/',
+        adapter: new PugAdapter(), // or new PugAdapter() or new EjsAdapter()
+        options: {
+          strict: true,
+        },
+      },
+    }),
     
   ],
   controllers: [],

@@ -10,15 +10,19 @@ import { JwtPayload } from 'src/auth/interfaces/jwt-payload.interface';
 import { Token } from 'src/user/Models/Token.schema';
 import { generateToken } from 'src/common/helpers/generateToken';
 import { SendEmailService } from 'src/send-email/send-email.service';
+import { hashPassword } from 'src/common/helpers/hashPassword';
+import { UserUpdatePasswordDto } from './dto/user-update-password.dto';
+import { checkPassword } from 'src/common/helpers/checkPassword';
 
 @Injectable()
 export class UserService {
+
   private readonly logger = new Logger('UserService');
   constructor(
     @InjectModel(User.name) private readonly UserModel: Model<User>,
     @InjectModel(Token.name) private readonly TokenModel: Model<Token>,
     private readonly jwtService: JwtService,
-    private readonly sendMail : SendEmailService,
+    private readonly sendMail: SendEmailService,
 
 
   ) { }
@@ -29,7 +33,7 @@ export class UserService {
 
       const user = await this.UserModel.create({
         ...userData,
-        password: bcrypt.hashSync(password, 10)
+        password: await hashPassword(password)
       })
 
       if (!user)
@@ -38,16 +42,16 @@ export class UserService {
       user.token = this.getJwtToken({ id: user.id, email: user.email })
 
       const token = await this.TokenModel.create({
-        token:generateToken(),
-        user:user.id
+        token: generateToken(),
+        user: user.id
       })
 
       this.sendMail.SendConfirmationEmail({
         email: user.email,
-        name: user.firtsName + ' '+ user.lastName,
-        token:token.token
+        name: user.firtsName + ' ' + user.lastName,
+        token: token.token
       })
-      await Promise.allSettled([user.save(),token.save()])
+      await Promise.allSettled([user.save(), token.save()])
       return user
 
     } catch (error) {
@@ -70,12 +74,33 @@ export class UserService {
   remove(id: string) {
     return `This action removes a #${id} user`;
   }
-  SingUp(createUserDto: CreateUserDto) {
 
+
+
+  async updateCurrentUserPassword(UpdatePassword: UserUpdatePasswordDto, user: User) {
+    const { current_password, password } = UpdatePassword
+
+    const userExist = await this.UserModel.findById(user.id)
+
+    const isPasswordCorrect = await checkPassword(current_password, userExist.password)
+    if (!isPasswordCorrect) {
+      throw new BadRequestException('El Password actual es incorrecto').getResponse()
+
+    }
+
+    try {
+      userExist.password = await hashPassword(password)
+      await userExist.save()
+      return {ok:true, msg:'El Password se modificó correctamente'}
+    } catch (error) {
+      this.handleDBExceptions(error)
+    }
   }
+
+
   private handleDBExceptions(error: any) {
 
-    if (error.code === '23505')
+    if (error.code === 400)
       throw new BadRequestException(error.detail);
 
     this.logger.error(error)
