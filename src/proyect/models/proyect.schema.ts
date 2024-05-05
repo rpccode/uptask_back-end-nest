@@ -1,7 +1,9 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, PopulatedDoc, Types } from 'mongoose';
+import { Note } from 'src/task/Models/note.schema';
 
 import { Task } from 'src/task/Models/task.schema';
+import { User } from 'src/user/Models/user.schema';
 
 
 export type ProyectDocument = Proyect & Document;
@@ -38,6 +40,18 @@ export class Proyect extends Document {
     })
     tasks: PopulatedDoc<Task & Document>[]
     @Prop({
+        type: Types.ObjectId,
+        ref: 'User',
+        trim: true
+    })
+    manager: PopulatedDoc<User & Document>
+    @Prop({
+        type: [Types.ObjectId],
+        ref: 'User',
+        trim: true
+    })
+    team: PopulatedDoc<User & Document>[]
+    @Prop({
 
         default: true,
         trim: true
@@ -46,4 +60,7 @@ export class Proyect extends Document {
 }
 
 
-export const ProyectSchema = SchemaFactory.createForClass(Proyect);
+ export const ProyectSchema = SchemaFactory.createForClass(Proyect);
+
+
+

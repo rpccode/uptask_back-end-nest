@@ -5,6 +5,7 @@ import { UpdateTaskDto } from './dto/update-task.dto';
 import { ParseMongoIdPipe } from 'src/common/pipes/parse-mongo-id/parse-mongo-id.pipe';
 import { GetProject } from 'src/common/decoretor/get-project/get-project.decorator';
 import { proyect } from 'src/common/interfaces/proyect';
+import { Proyect } from 'src/proyect/models/proyect.schema';
 
 @Controller('task')
 export class TaskController {
@@ -13,8 +14,12 @@ export class TaskController {
   ) {}
 
   @Post(':proyectId')
-  create(@Param('proyectId', ParseMongoIdPipe) proyectId: string, @Body() createTaskDto: CreateTaskDto) {
-    return this.taskService.create(proyectId,createTaskDto);
+  create(
+    @Param('proyectId', ParseMongoIdPipe) proyectId: string,
+    @Body() createTaskDto: CreateTaskDto,
+    @GetProject() proyect: Proyect
+  ) {
+    return this.taskService.create(proyectId,createTaskDto,proyect);
   }
 
   @Get()

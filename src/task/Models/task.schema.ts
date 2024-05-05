@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose"
 import { Document, Types } from "mongoose"
+import { UserDocument } from "src/user/Models/user.schema";
+import { Note, NoteDocument, NoteSchema } from "./note.schema";
 
 export const taskStatus = {
     PENDING: "pending",
@@ -16,6 +18,7 @@ export type TaskDocument = Task & Document;
     timestamps: true
 })
 export class Task extends Document {
+   
     @Prop({
 
         required: true,
@@ -39,9 +42,40 @@ export class Task extends Document {
     @Prop({
         enum: Object.values(taskStatus),
         default: taskStatus.PENDING
-      
+
     })
     status: string
+    @Prop({
+        type: [{
+            user: {
+                type: Types.ObjectId,
+                ref: 'User',
+                default: null
+            },
+            status: {
+                type: String,
+                enum: Object.values(taskStatus),
+                default: taskStatus.PENDING
+            }
+        }],
+        default: []
+    })
+    completedBy: {
+        user: Types.ObjectId | UserDocument | null,
+        status: TaskStatus
+    }[];
+
+    @Prop({
+        type: [
+            {
+                type: Types.ObjectId,
+                ref: 'Note'
+            }
+        ],
+        default: []
+    })
+    notes: Types.ObjectId[] | NoteDocument[];
+
     @Prop({
 
         default: true,
@@ -52,4 +86,8 @@ export class Task extends Document {
 
 }
 
+
+
 export const TaskSchema = SchemaFactory.createForClass(Task);
+
+

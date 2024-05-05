@@ -6,6 +6,7 @@ import { Model } from 'mongoose';
 import { Task, TaskStatus, taskStatus } from './Models/task.schema';
 import { proyect } from 'src/common/interfaces/proyect';
 import { UpdateTaskStatusDto } from './dto/update-task-status.dto';
+import { Proyect } from 'src/proyect/models/proyect.schema';
 
 
 @Injectable()
@@ -16,7 +17,7 @@ export class TaskService {
     @InjectModel(Task.name) private readonly TaskModel: Model<Task>,
   ) { }
   
-  async create(id: string,createTaskDto: CreateTaskDto) {
+  async create(id: string,createTaskDto: CreateTaskDto,project:Proyect) {
     try {
 
       const newTask ={
@@ -25,7 +26,8 @@ export class TaskService {
       }
     
       const task = await this.TaskModel.create(newTask)
-      
+       project.tasks.push(task.id)
+      await project.save()
       
       return task
     } catch (error) {
@@ -58,8 +60,7 @@ export class TaskService {
   }
  
   async findOne(id: string,project:string) {
-    const Id = id
-    // console.log(Id)
+   
     try {
       const results = await this.TaskModel.findById(id).where({ IsActive: true, proyect:project })
 

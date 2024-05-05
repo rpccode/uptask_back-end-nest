@@ -10,6 +10,8 @@ import { AuthModule } from './auth/auth.module';
 import { SendEmailModule } from './send-email/send-email.module';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
+import { TaskExistsMiddleware } from './common/middleware/Task-exist/task-exist.middleware';
+// import { hasAuthorizationMiddleware } from './common/middleware/Task-exist/hasAuthorization.middleware';
 
 
 @Module({
@@ -52,6 +54,10 @@ import { PugAdapter } from '@nestjs-modules/mailer/dist/adapters/pug.adapter';
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
-    consumer.apply(ProjectExistsMiddleware).forRoutes('project/:projectId/task'); // Adjust the route pattern as needed
+    consumer.apply(ProjectExistsMiddleware).forRoutes('project/:projectId/task'); 
+    consumer.apply(TaskExistsMiddleware).forRoutes('project/:projectId/task/:TaskId'); 
+    // consumer.apply(hasAuthorizationMiddleware).forRoutes('project/:projectId/task/:TaskId'); 
+
+
   }
 }
